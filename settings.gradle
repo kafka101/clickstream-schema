@@ -1,0 +1,3 @@
+rootProject.name = 'clickstream-schema'
+
+include 'consumer', 'producer', 'domain', 'it-test'
