@@ -2,20 +2,26 @@ task wrapper(type: Wrapper) {
     gradleVersion = project.gradle.gradleVersion
 }
 
+task confluentDeps(type: Exec) {
+    executable "bash"
+    args "confluent-deps.sh"
+}
+
 ext {
     sourceCompatibility = 1.8
     version = '1.0.0'
     jacksonVersion = '2.5.4'
     kafkaVersion = '0.8.2.1'
+    confluentVersion = '2.0-SNAPSHOT'
 }
 
 
 subprojects {
     apply plugin: 'java'
 
-
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 
     dependencies {
@@ -28,6 +34,7 @@ subprojects {
             exclude group: 'org.hamcrest', module: 'hamcrest-core'
         }
         compile(
+                ["io.confluent:kafka-avro-serializer:$confluentVersion"],
                 ["com.fasterxml.jackson.core:jackson-core:$jacksonVersion"],
                 ["com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"],
                 ["com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"],
