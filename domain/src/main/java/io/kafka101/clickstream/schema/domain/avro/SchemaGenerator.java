@@ -1,4 +1,4 @@
-package io.kafka101.clickstream.schema.domain;
+package io.kafka101.clickstream.schema.domain.avro;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

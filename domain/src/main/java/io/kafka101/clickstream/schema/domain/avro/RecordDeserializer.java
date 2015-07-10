@@ -1,4 +1,4 @@
-package io.kafka101.clickstream.schema.domain;
+package io.kafka101.clickstream.schema.domain.avro;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -6,23 +6,22 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 
 import java.io.IOException;
 
-public class AvroRecordDeserializer extends StdDeserializer<GenericData.Record> {
+public class RecordDeserializer extends StdDeserializer<GenericRecord> {
 
     private Schema schema;
-    private AvroArrayDeserializer avroArrayDeserializer;
 
-    public AvroRecordDeserializer(Schema schema) {
+    public RecordDeserializer(Schema schema) {
         super(GenericData.Record.class);
         this.schema = schema;
-        this.avroArrayDeserializer = new AvroArrayDeserializer(schema, this);
     }
 
     @Override
-    public GenericData.Record deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        GenericData.Record ob = new GenericData.Record(this.schema);
+    public GenericRecord deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        GenericRecord ob = new GenericData.Record(this.schema);
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
             t = jp.nextToken();
@@ -32,10 +31,12 @@ public class AvroRecordDeserializer extends StdDeserializer<GenericData.Record> 
             t = jp.nextToken();
             switch (t) {
             case START_ARRAY:
-                ob.put(fieldName, avroArrayDeserializer.deserialize(jp, ctxt));
+                ArrayDeserializer arrayDeserializer = new ArrayDeserializer(schema.getField(fieldName).schema(), this);
+                ob.put(fieldName, arrayDeserializer.deserialize(jp, ctxt));
                 continue;
             case START_OBJECT:
-                ob.put(fieldName, deserialize(jp, ctxt));
+                GenericRecord inner = new GenericData.Record(schema.getField(fieldName).schema());
+                ob.put(fieldName, inner);
                 continue;
             case VALUE_STRING:
                 ob.put(fieldName, jp.getText());

@@ -1,4 +1,4 @@
-package io.kafka101.clickstream.schema.domain;
+package io.kafka101.clickstream.schema.domain.avro;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -10,15 +10,15 @@ import org.apache.avro.generic.GenericData;
 
 import java.io.IOException;
 
-public class AvroArrayDeserializer extends StdDeserializer<GenericArray> {
+public class ArrayDeserializer extends StdDeserializer<GenericArray> {
 
     private Schema schema;
-    private AvroRecordDeserializer avroRecordDeserializer;
+    private RecordDeserializer recordDeserializer;
 
-    public AvroArrayDeserializer(Schema schema, AvroRecordDeserializer avroRecordDeserializer) {
+    public ArrayDeserializer(Schema schema, RecordDeserializer recordDeserializer) {
         super(GenericArray.class);
         this.schema = schema;
-        this.avroRecordDeserializer = avroRecordDeserializer;
+        this.recordDeserializer = recordDeserializer;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class AvroArrayDeserializer extends StdDeserializer<GenericArray> {
                 array.add(deserialize(jp, ctxt));
                 continue;
             case START_OBJECT:
-                array.add(avroRecordDeserializer.deserialize(jp, ctxt));
+                array.add(recordDeserializer.deserialize(jp, ctxt));
                 continue;
             case VALUE_STRING:
                 array.add(jp.getText());
