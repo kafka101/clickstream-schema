@@ -16,3 +16,6 @@ hs_err_pid*
 gradle/
 *.iml
 build/
+
+# ignore generated Confluent dependencies
+confluent/
