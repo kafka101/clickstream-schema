@@ -16,21 +16,23 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class RecordDeserializerTest {
+public class DeserializationTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(RecordDeserializerTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeserializationTest.class);
     private TestPojo pojo;
     private Schema schema;
     private ObjectMapper mapper;
 
-    public RecordDeserializerTest() {
-        pojo = new TestPojo(1, 1L, 1.0f, 1.0, "Hello World", new String[]{"Hello World"}, new InnerTestPojo("Hey there"));
+    public DeserializationTest() {
+        pojo = new TestPojo(1, 1L, 1.0f, 1.0, "Hello World", new String[]{"Hello World Array"},
+                new InnerTestPojo("Hello World inner String", new InnerTestPojo("Hello World inner inner String")));
         schema = SchemaGenerator.generateAvroSchema(TestPojo.class).getAvroSchema();
 
         logger.info("Schema: {}", schema.toString(true));
 
         mapper = new ObjectMapper(new AvroFactory());
-        mapper.registerModule(new SimpleModule().addDeserializer(GenericRecord.class, new RecordDeserializer(schema)));
+        mapper.registerModule(
+                new SimpleModule().addDeserializer(GenericRecord.class, new GenericRecordDeserializer(schema)));
     }
 
     @Test
@@ -44,6 +46,10 @@ public class RecordDeserializerTest {
         assertThat(((GenericArray) genericRecord.get("stringArray")).get(0), is(equalTo(pojo.stringArray[0])));
         GenericRecord innerRecord = (GenericRecord) genericRecord.get("innerTestPojo");
         assertThat(innerRecord.get("innerStringField"), is(equalTo(pojo.innerTestPojo.innerStringField)));
+        GenericRecord innerInnerRecord = (GenericRecord) innerRecord.get("innerTestPojo");
+        assertThat(innerInnerRecord.get("innerStringField"),
+                is(equalTo(pojo.innerTestPojo.innerTestPojo.innerStringField)));
+
     }
 
     public class TestPojo {
@@ -87,9 +93,20 @@ public class RecordDeserializerTest {
         @JsonProperty(required = true)
         public final String innerStringField;
 
+        @JsonProperty(required = true)
+        public final InnerTestPojo innerTestPojo;
+
+        @JsonCreator
+        public InnerTestPojo(@JsonProperty("innerStringField") String innerStringField,
+                @JsonProperty("innerTestPojo") InnerTestPojo innerTestPojo) {
+            this.innerStringField = innerStringField;
+            this.innerTestPojo = innerTestPojo;
+        }
+
         @JsonCreator
         public InnerTestPojo(@JsonProperty("innerStringField") String innerStringField) {
             this.innerStringField = innerStringField;
+            this.innerTestPojo = null;
         }
     }
 }

@@ -10,11 +10,11 @@ import org.apache.avro.generic.GenericRecord;
 
 import java.io.IOException;
 
-public class RecordDeserializer extends StdDeserializer<GenericRecord> {
+public class GenericRecordDeserializer extends StdDeserializer<GenericRecord> {
 
     private Schema schema;
 
-    public RecordDeserializer(Schema schema) {
+    public GenericRecordDeserializer(Schema schema) {
         super(GenericData.Record.class);
         this.schema = schema;
     }
@@ -31,11 +31,13 @@ public class RecordDeserializer extends StdDeserializer<GenericRecord> {
             t = jp.nextToken();
             switch (t) {
             case START_ARRAY:
-                ArrayDeserializer arrayDeserializer = new ArrayDeserializer(schema.getField(fieldName).schema(), this);
-                ob.put(fieldName, arrayDeserializer.deserialize(jp, ctxt));
+                GenericArrayDeserializer genericArrayDeserializer = new GenericArrayDeserializer(
+                        schema.getField(fieldName).schema(), this);
+                ob.put(fieldName, genericArrayDeserializer.deserialize(jp, ctxt));
                 continue;
             case START_OBJECT:
-                RecordDeserializer innerDeserializer = new RecordDeserializer(schema.getField(fieldName).schema());
+                GenericRecordDeserializer innerDeserializer = new GenericRecordDeserializer(
+                        schema.getField(fieldName).schema());
                 ob.put(fieldName, innerDeserializer.deserialize(jp, ctxt));
                 continue;
             case VALUE_STRING:

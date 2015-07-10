@@ -20,8 +20,7 @@ public class GenericArraySerializer extends StdSerializer<GenericArray> {
     }
 
     @Override
-    public void serialize(GenericArray value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException {
+    public void serialize(GenericArray value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartArray();
         serializeContents(value, jgen, provider);
         jgen.writeEndArray();
@@ -36,8 +35,7 @@ public class GenericArraySerializer extends StdSerializer<GenericArray> {
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-            throws JsonMappingException {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("array", true);
     }
 

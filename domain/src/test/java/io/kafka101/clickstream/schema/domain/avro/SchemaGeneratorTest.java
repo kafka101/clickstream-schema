@@ -1,6 +1,6 @@
-package io.kafka101.clickstream.schema.domain;
+package io.kafka101.clickstream.schema.domain.avro;
 
-import io.kafka101.clickstream.schema.domain.avro.SchemaGenerator;
+import io.kafka101.clickstream.schema.domain.Click;
 import org.apache.avro.Schema;
 import org.junit.Test;
 import org.slf4j.Logger;

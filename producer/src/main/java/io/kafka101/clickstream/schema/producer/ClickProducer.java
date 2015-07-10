@@ -9,7 +9,7 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.kafka101.clickstream.schema.domain.Click;
 import io.kafka101.clickstream.schema.domain.avro.SchemaGenerator;
-import io.kafka101.clickstream.schema.domain.avro.RecordDeserializer;
+import io.kafka101.clickstream.schema.domain.avro.GenericRecordDeserializer;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -35,7 +35,7 @@ public class ClickProducer {
         this.topic = topic;
         this.schema = SchemaGenerator.generateAvroSchema(Click.class);
         mapper.registerModule(new SimpleModule().addDeserializer(GenericRecord.class,
-                new RecordDeserializer(schema.getAvroSchema())));
+                new GenericRecordDeserializer(schema.getAvroSchema())));
     }
 
     private KafkaProducer<String, GenericRecord> createProducer(String broker, String schemaRegistry) {

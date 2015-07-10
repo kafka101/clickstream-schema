@@ -23,8 +23,7 @@ public class GenericRecordSerializer extends StdSerializer<GenericRecord> {
     }
 
     @Override
-    public void serialize(GenericRecord value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException {
+    public void serialize(GenericRecord value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         serializeContents(value, jgen, provider);
         jgen.writeEndObject();
@@ -32,22 +31,20 @@ public class GenericRecordSerializer extends StdSerializer<GenericRecord> {
 
     @Override
     public void serializeWithType(GenericRecord value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-            throws IOException, JsonGenerationException {
+            TypeSerializer typeSer) throws IOException, JsonGenerationException {
         typeSer.writeTypePrefixForObject(value, jgen);
         serializeContents(value, jgen, provider);
         typeSer.writeTypeSuffixForObject(value, jgen);
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-            throws JsonMappingException {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("record", true);
     }
 
     protected void serializeContents(GenericRecord value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException {
-        for  (Schema.Field field : value.getSchema().getFields()) {
+        for (Schema.Field field : value.getSchema().getFields()) {
             Object object = value.get(field.name());
             if (object == null) {
                 if (provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {

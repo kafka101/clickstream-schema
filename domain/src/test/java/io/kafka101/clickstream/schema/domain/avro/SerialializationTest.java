@@ -61,7 +61,9 @@ public class SerialializationTest {
         String expected = String.format("{\"ip\":\"192.168.0.1\",\"page\":\"clickstream.html\",\"time\":\"%s\"}", time);
         assertThat(expected, is(equalTo(mapper.writeValueAsString(click))));
 
-        expected = String.format("{\"click\":{\"ip\":\"192.168.0.1\",\"page\":\"clickstream.html\",\"time\":\"%s\"},\"counter\":42}", time);
+        expected = String.format(
+                "{\"click\":{\"ip\":\"192.168.0.1\",\"page\":\"clickstream.html\",\"time\":\"%s\"},\"counter\":42}",
+                time);
         assertThat(expected, is(equalTo(mapper.writeValueAsString(pojo))));
     }
 

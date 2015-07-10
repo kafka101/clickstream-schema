@@ -10,15 +10,15 @@ import org.apache.avro.generic.GenericData;
 
 import java.io.IOException;
 
-public class ArrayDeserializer extends StdDeserializer<GenericArray> {
+public class GenericArrayDeserializer extends StdDeserializer<GenericArray> {
 
     private Schema schema;
-    private RecordDeserializer recordDeserializer;
+    private GenericRecordDeserializer genericRecordDeserializer;
 
-    public ArrayDeserializer(Schema schema, RecordDeserializer recordDeserializer) {
+    public GenericArrayDeserializer(Schema schema, GenericRecordDeserializer genericRecordDeserializer) {
         super(GenericArray.class);
         this.schema = schema;
-        this.recordDeserializer = recordDeserializer;
+        this.genericRecordDeserializer = genericRecordDeserializer;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ArrayDeserializer extends StdDeserializer<GenericArray> {
                 array.add(deserialize(jp, ctxt));
                 continue;
             case START_OBJECT:
-                array.add(recordDeserializer.deserialize(jp, ctxt));
+                array.add(genericRecordDeserializer.deserialize(jp, ctxt));
                 continue;
             case VALUE_STRING:
                 array.add(jp.getText());
