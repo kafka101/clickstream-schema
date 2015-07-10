@@ -35,14 +35,14 @@ public class RecordDeserializer extends StdDeserializer<GenericRecord> {
                 ob.put(fieldName, arrayDeserializer.deserialize(jp, ctxt));
                 continue;
             case START_OBJECT:
-                GenericRecord inner = new GenericData.Record(schema.getField(fieldName).schema());
-                ob.put(fieldName, inner);
+                RecordDeserializer innerDeserializer = new RecordDeserializer(schema.getField(fieldName).schema());
+                ob.put(fieldName, innerDeserializer.deserialize(jp, ctxt));
                 continue;
             case VALUE_STRING:
                 ob.put(fieldName, jp.getText());
                 continue;
             case VALUE_NULL:
-                // is nop ok here?
+                ob.put(fieldName, null);
                 continue;
             case VALUE_TRUE:
                 ob.put(fieldName, Boolean.TRUE);
