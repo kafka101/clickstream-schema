@@ -4,7 +4,9 @@ dependencies {
             project(':producer'),
             project(path: ':producer', configuration: 'tests'),
             project(':consumer'),
-            ["com.jayway.awaitility:awaitility:1.6.3"]
+            ["com.jayway.awaitility:awaitility:1.6.3"],
+            ["io.confluent:kafka-schema-registry:$confluentVersion"],
+            ["io.confluent:kafka-schema-registry:$confluentVersion:tests"]
     )
     testCompile("org.apache.kafka:kafka_2.10:$kafkaVersion:test") {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'

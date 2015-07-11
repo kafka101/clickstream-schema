@@ -21,8 +21,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SerialializationTest {
+
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new SerializationModule());
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
 
     @Before
     public void setUp() {

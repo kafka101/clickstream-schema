@@ -8,9 +8,8 @@ import com.fasterxml.jackson.dataformat.avro.AvroSchema;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.kafka101.clickstream.schema.domain.Click;
-import io.kafka101.clickstream.schema.domain.avro.SchemaGenerator;
 import io.kafka101.clickstream.schema.domain.avro.GenericRecordDeserializer;
-import org.apache.avro.generic.GenericData;
+import io.kafka101.clickstream.schema.domain.avro.SchemaGenerator;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -48,8 +47,7 @@ public class ClickProducer {
     }
 
     public RecordMetadata send(Click click) throws ExecutionException, InterruptedException, JsonProcessingException {
-        GenericRecord genericRecord = mapper.convertValue(click, GenericData.Record.class);
-        logger.info("Schema: '{}'", genericRecord.getSchema().toString(true));
+        GenericRecord genericRecord = mapper.convertValue(click, GenericRecord.class);
         ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topic, click.ip, genericRecord);
         return this.producer.send(record).get();
     }
