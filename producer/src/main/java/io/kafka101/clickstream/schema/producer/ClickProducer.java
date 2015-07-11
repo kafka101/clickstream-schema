@@ -1,40 +1,35 @@
 package io.kafka101.clickstream.schema.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.avro.AvroFactory;
-import com.fasterxml.jackson.dataformat.avro.AvroSchema;
+import com.fasterxml.jackson.dataformat.avro.AvroMapper;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.kafka101.clickstream.schema.domain.Click;
 import io.kafka101.clickstream.schema.domain.avro.GenericRecordDeserializer;
-import io.kafka101.clickstream.schema.domain.avro.SchemaGenerator;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 public class ClickProducer {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClickProducer.class);
-    private final KafkaProducer<String, GenericRecord> producer;
+    private final AvroMapper mapper = new AvroMapper();
     private final String topic;
-    private final ObjectMapper mapper = new ObjectMapper(new AvroFactory());
-    private final AvroSchema schema;
+    private final KafkaProducer<String, GenericRecord> producer;
 
-    public ClickProducer(String topic, String broker, String schemaRegistry) {
-        this.producer = createProducer(broker, schemaRegistry);
+    public ClickProducer(String topic, String broker, String schemaRegistry) throws JsonMappingException {
         this.topic = topic;
-        this.schema = SchemaGenerator.generateAvroSchema(Click.class);
-        mapper.registerModule(new SimpleModule().addDeserializer(GenericRecord.class,
-                new GenericRecordDeserializer(schema.getAvroSchema())));
+        this.producer = createProducer(broker, schemaRegistry);
+        Schema schema = mapper.schemaFor(Click.class).getAvroSchema();
+        mapper.registerModule(
+                new SimpleModule().addDeserializer(GenericRecord.class, new GenericRecordDeserializer(schema)));
     }
 
     private KafkaProducer<String, GenericRecord> createProducer(String broker, String schemaRegistry) {

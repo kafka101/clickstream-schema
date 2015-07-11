@@ -11,7 +11,7 @@ public class SchemaGeneratorTest {
 
     @Test
     public void testGenerateAvroSchema() throws Exception {
-        Schema schema = SchemaGenerator.generateAvroSchema(Click.class).getAvroSchema();
+        Schema schema = SchemaGenerator.schemaFor(Click.class).getAvroSchema();
         logger.info(schema.toString());
     }
 }

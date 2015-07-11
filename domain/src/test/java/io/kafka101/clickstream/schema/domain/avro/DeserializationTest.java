@@ -26,7 +26,7 @@ public class DeserializationTest {
     public DeserializationTest() {
         pojo = new TestPojo(1, 1L, 1.0f, 1.0, "Hello World", new String[]{"Hello World Array"},
                 new InnerTestPojo("Hello World inner String", new InnerTestPojo("Hello World inner inner String")));
-        schema = SchemaGenerator.generateAvroSchema(TestPojo.class).getAvroSchema();
+        schema = SchemaGenerator.schemaFor(TestPojo.class).getAvroSchema();
 
         logger.info("Schema: {}", schema.toString(true));
 

@@ -33,7 +33,7 @@ public class SerialializationTest {
 
     @Test
     public void serializeSimplePojo() throws JsonProcessingException {
-        Schema schema = SchemaGenerator.generateAvroSchema(Click.class).getAvroSchema();
+        Schema schema = SchemaGenerator.schemaFor(Click.class).getAvroSchema();
         String time = df.format(new Date());
 
         GenericRecord click = new GenericData.Record(schema);
@@ -47,14 +47,14 @@ public class SerialializationTest {
 
     @Test
     public void serializeNestedPojo() throws JsonProcessingException {
-        Schema clickSchema = SchemaGenerator.generateAvroSchema(Click.class).getAvroSchema();
+        Schema clickSchema = SchemaGenerator.schemaFor(Click.class).getAvroSchema();
         String time = df.format(new Date());
         GenericRecord click = new GenericData.Record(clickSchema);
         click.put("time", time);
         click.put("ip", "192.168.0.1");
         click.put("page", "clickstream.html");
 
-        Schema pojoSchema = SchemaGenerator.generateAvroSchema(NestedPojo.class).getAvroSchema();
+        Schema pojoSchema = SchemaGenerator.schemaFor(NestedPojo.class).getAvroSchema();
         GenericRecord pojo = new GenericData.Record(pojoSchema);
         pojo.put("counter", 42);
         pojo.put("click", click);
