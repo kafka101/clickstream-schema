@@ -8,16 +8,15 @@ import com.fasterxml.jackson.dataformat.avro.schema.AvroSchemaGenerator;
 
 public class SchemaGenerator {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper(new AvroFactory());
-    private static final AvroSchemaGenerator GENERATOR = new AvroSchemaGenerator();
-
     private SchemaGenerator() {
     }
 
     public static AvroSchema generateAvroSchema(Class clazz) {
+        ObjectMapper mapper = new ObjectMapper(new AvroFactory());
+        AvroSchemaGenerator generator = new AvroSchemaGenerator();
         try {
-            MAPPER.acceptJsonFormatVisitor(clazz, GENERATOR);
-            return GENERATOR.getGeneratedSchema();
+            mapper.acceptJsonFormatVisitor(clazz, generator);
+            return generator.getGeneratedSchema();
         } catch (JsonMappingException ex) {
             throw new RuntimeException("Could not generate schema for class: " + clazz, ex);
         }
