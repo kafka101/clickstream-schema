@@ -24,8 +24,10 @@ public class DeserializationTest {
     private ObjectMapper mapper;
 
     public DeserializationTest() {
-        pojo = new TestPojo(1, 1L, 1.0f, 1.0, "Hello World", new String[]{"Hello World Array"},
-                new InnerTestPojo("Hello World inner String", new InnerTestPojo("Hello World inner inner String")));
+        InnerTestPojo innerTestPojo = new InnerTestPojo("Hello World inner String",
+                new InnerTestPojo("Hello World inner inner String"));
+
+        pojo = new TestPojo(1, 1L, 1.0f, 1.0, "Hello World", new String[]{"Hello World Array"}, innerTestPojo);
         schema = SchemaGenerator.schemaFor(TestPojo.class).getAvroSchema();
 
         logger.info("Schema: {}", schema.toString(true));
@@ -44,6 +46,7 @@ public class DeserializationTest {
         assertThat(genericRecord.get("doubleField"), is(equalTo(pojo.doubleField)));
         assertThat(genericRecord.get("stringField"), is(equalTo(pojo.stringField)));
         assertThat(((GenericArray) genericRecord.get("stringArray")).get(0), is(equalTo(pojo.stringArray[0])));
+
         GenericRecord innerRecord = (GenericRecord) genericRecord.get("innerTestPojo");
         assertThat(innerRecord.get("innerStringField"), is(equalTo(pojo.innerTestPojo.innerStringField)));
         GenericRecord innerInnerRecord = (GenericRecord) innerRecord.get("innerTestPojo");
@@ -73,6 +76,8 @@ public class DeserializationTest {
 
         @JsonProperty(required = true)
         public final InnerTestPojo innerTestPojo;
+        //        @JsonProperty(required = true)
+        //        public final InnerTestPojo[] innerTestPojos;
 
         @JsonCreator
         public TestPojo(@JsonProperty("intField") int intField, @JsonProperty("longField") long longField,
@@ -86,6 +91,7 @@ public class DeserializationTest {
             this.stringField = stringField;
             this.stringArray = stringArray;
             this.innerTestPojo = innerTestPojo;
+            //this.innerTestPojos = innerTestPojos;
         }
     }
 

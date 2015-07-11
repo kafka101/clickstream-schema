@@ -14,19 +14,18 @@ import java.io.IOException;
 public class GenericRecordDeserializer extends StdDeserializer<GenericRecord> {
 
     private final Schema schema;
-    public static final GenericRecordDeserializer instance = new GenericRecordDeserializer();
 
-    public GenericRecordDeserializer() {
-        super(GenericData.Record.class);
-        schema = null;
-    }
-
-    public GenericRecordDeserializer(final Schema schema) {
+    public GenericRecordDeserializer(Schema schema) {
         super(GenericData.Record.class);
         this.schema = schema;
     }
 
-    public GenericRecord deserialize(Schema schema, JsonParser jp, DeserializationContext ctxt) throws IOException {
+    @Override
+    public GenericRecord deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        return deserialize(this.schema, jp, ctxt);
+    }
+
+    private GenericRecord deserialize(Schema schema, JsonParser jp, DeserializationContext ctxt) throws IOException {
         GenericRecord ob = new GenericData.Record(schema);
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -37,8 +36,9 @@ public class GenericRecordDeserializer extends StdDeserializer<GenericRecord> {
             t = jp.nextToken();
             switch (t) {
             case START_ARRAY:
-                GenericArray data = GenericArrayDeserializer.instance.deserialize(schema.getField(fieldName).schema(),
-                        jp, ctxt);
+                GenericArrayDeserializer deserializer = new GenericArrayDeserializer(
+                        schema.getField(fieldName).schema());
+                GenericArray data = deserializer.deserialize(jp, ctxt);
                 ob.put(fieldName, data);
                 continue;
             case START_OBJECT:
@@ -67,20 +67,7 @@ public class GenericRecordDeserializer extends StdDeserializer<GenericRecord> {
                 continue;
             default:
             }
-
         }
         return ob;
-    }
-
-    @Override
-    public GenericRecord deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        verifySchemaIsPresent();
-        return deserialize(this.schema, jp, ctxt);
-    }
-
-    private void verifySchemaIsPresent() {
-        if (schema == null) {
-            throw new AvroSerializationException("Schema not present!");
-        }
     }
 }
