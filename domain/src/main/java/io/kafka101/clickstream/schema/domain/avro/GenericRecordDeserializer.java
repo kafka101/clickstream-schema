@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 
@@ -12,16 +13,21 @@ import java.io.IOException;
 
 public class GenericRecordDeserializer extends StdDeserializer<GenericRecord> {
 
-    private Schema schema;
+    private final Schema schema;
+    public static final GenericRecordDeserializer instance = new GenericRecordDeserializer();
 
-    public GenericRecordDeserializer(Schema schema) {
+    public GenericRecordDeserializer() {
+        super(GenericData.Record.class);
+        schema = null;
+    }
+
+    public GenericRecordDeserializer(final Schema schema) {
         super(GenericData.Record.class);
         this.schema = schema;
     }
 
-    @Override
-    public GenericRecord deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        GenericRecord ob = new GenericData.Record(this.schema);
+    public GenericRecord deserialize(Schema schema, JsonParser jp, DeserializationContext ctxt) throws IOException {
+        GenericRecord ob = new GenericData.Record(schema);
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
             t = jp.nextToken();
@@ -31,14 +37,12 @@ public class GenericRecordDeserializer extends StdDeserializer<GenericRecord> {
             t = jp.nextToken();
             switch (t) {
             case START_ARRAY:
-                GenericArrayDeserializer genericArrayDeserializer = new GenericArrayDeserializer(
-                        schema.getField(fieldName).schema(), this);
-                ob.put(fieldName, genericArrayDeserializer.deserialize(jp, ctxt));
+                GenericArray data = GenericArrayDeserializer.instance.deserialize(schema.getField(fieldName).schema(),
+                        jp, ctxt);
+                ob.put(fieldName, data);
                 continue;
             case START_OBJECT:
-                GenericRecordDeserializer innerDeserializer = new GenericRecordDeserializer(
-                        schema.getField(fieldName).schema());
-                ob.put(fieldName, innerDeserializer.deserialize(jp, ctxt));
+                ob.put(fieldName, deserialize(schema.getField(fieldName).schema(), jp, ctxt));
                 continue;
             case VALUE_STRING:
                 ob.put(fieldName, jp.getText());
@@ -66,5 +70,17 @@ public class GenericRecordDeserializer extends StdDeserializer<GenericRecord> {
 
         }
         return ob;
+    }
+
+    @Override
+    public GenericRecord deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        verifySchemaIsPresent();
+        return deserialize(this.schema, jp, ctxt);
+    }
+
+    private void verifySchemaIsPresent() {
+        if (schema == null) {
+            throw new AvroSerializationException("Schema not present!");
+        }
     }
 }
