@@ -2,9 +2,10 @@ package io.kafka101.clickstream.schema.domain.avro;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.avro.AvroFactory;
+import com.fasterxml.jackson.dataformat.avro.AvroMapper;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.generic.GenericRecord;
@@ -21,20 +22,20 @@ public class DeserializationTest {
     private static final Logger logger = LoggerFactory.getLogger(DeserializationTest.class);
     private TestPojo pojo;
     private Schema schema;
-    private ObjectMapper mapper;
+    private AvroMapper mapper;
 
-    public DeserializationTest() {
+    public DeserializationTest() throws JsonMappingException {
         InnerTestPojo innerTestPojo = new InnerTestPojo("Hello World inner String",
                 new InnerTestPojo("Hello World inner inner String"));
 
         pojo = new TestPojo(1, 1L, 1.0f, 1.0, "Hello World", new String[]{"Hello World Array"}, innerTestPojo);
-        schema = SchemaGenerator.schemaFor(TestPojo.class).getAvroSchema();
-
+        mapper = new AvroMapper(new AvroFactory());
+        schema = mapper.schemaFor(TestPojo.class).getAvroSchema();
         logger.info("Schema: {}", schema.toString(true));
 
-        mapper = new ObjectMapper(new AvroFactory());
         mapper.registerModule(
                 new SimpleModule().addDeserializer(GenericRecord.class, new GenericRecordDeserializer(schema)));
+
     }
 
     @Test
