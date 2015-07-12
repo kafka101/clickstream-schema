@@ -16,4 +16,10 @@ public class Click {
         this.ip = ip;
         this.page = page;
     }
+
+    public Click() {
+        this.ip = null;
+        this.time = null;
+        this.page = null;
+    }
 }
