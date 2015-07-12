@@ -22,18 +22,18 @@ public class ClickProducer {
     private final Schema schema;
     private final KafkaProducer<String, GenericRecord> producer;
 
-    public ClickProducer(String topic, String broker, String schemaRegistry) throws JsonMappingException {
+    public ClickProducer(String topic, String broker, String registryUrl) throws JsonMappingException {
         this.topic = topic;
-        this.producer = createProducer(broker, schemaRegistry);
         this.schema = AvroTranslator.schemaFor(Click.class);
+        this.producer = createProducer(broker, registryUrl);
     }
 
-    private KafkaProducer<String, GenericRecord> createProducer(String broker, String schemaRegistry) {
+    private KafkaProducer<String, GenericRecord> createProducer(String broker, String registryUrl) {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, broker);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-        config.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistry);
+        config.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, registryUrl);
         return new KafkaProducer<>(config);
     }
 
