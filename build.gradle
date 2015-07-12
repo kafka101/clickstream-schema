@@ -10,7 +10,6 @@ task confluentDeps(type: Exec) {
 ext {
     sourceCompatibility = 1.8
     version = '1.0.0'
-    jacksonVersion = '2.5.4'
     kafkaVersion = '0.8.2.1'
     confluentVersion = '2.0-SNAPSHOT'
 }
@@ -32,12 +31,6 @@ subprojects {
         )
         // needs to be separate in order to avoid classpath fun.
         testCompile("org.mockito:mockito-all:1.10.19")
-        compile(
-                ["io.confluent:kafka-avro-serializer:$confluentVersion"],
-                ["com.fasterxml.jackson.core:jackson-core:$jacksonVersion"],
-                ["com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"],
-                ["com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"],
-                ["com.fasterxml.jackson.dataformat:jackson-dataformat-avro:$jacksonVersion"]
-        )
+        compile(["io.confluent:kafka-avro-serializer:$confluentVersion"])
     }
 }
