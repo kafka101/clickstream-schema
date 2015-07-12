@@ -5,9 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Click {
 
-    public final String time;
-    public final String ip;
-    public final String page;
+    @JsonProperty(required = true)
+    public final String time, ip, page;
 
     @JsonCreator
     public Click(@JsonProperty("time") String time,
