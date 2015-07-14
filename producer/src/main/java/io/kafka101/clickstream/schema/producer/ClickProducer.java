@@ -12,7 +12,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
@@ -37,7 +36,7 @@ public class ClickProducer {
         return new KafkaProducer<>(config);
     }
 
-    public RecordMetadata send(Click click) throws IOException, ExecutionException, InterruptedException {
+    public RecordMetadata send(Click click) throws ExecutionException, InterruptedException {
         GenericRecord genericRecord = AvroTranslator.toRecord(click, schema);
         ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topic, click.ip, genericRecord);
         return this.producer.send(record).get();
