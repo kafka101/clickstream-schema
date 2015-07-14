@@ -24,19 +24,27 @@ public final class AvroTranslator {
         return ReflectData.get().getSchema(clazz);
     }
 
-    public static <T> GenericRecord toRecord(T object, Schema schema) throws IOException {
-        DatumWriter<T> writer = new ReflectDatumWriter<>(schema);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        writer.write(object, EncoderFactory.get().directBinaryEncoder(out, null));
-        DatumReader<GenericRecord> reader = new GenericDatumReader<>(schema);
-        return reader.read(null, DecoderFactory.get().binaryDecoder(out.toByteArray(), null));
+    public static <T> GenericRecord toRecord(T object, Schema schema) {
+        try {
+            DatumWriter<T> writer = new ReflectDatumWriter<>(schema);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            writer.write(object, EncoderFactory.get().directBinaryEncoder(out, null));
+            DatumReader<GenericRecord> reader = new GenericDatumReader<>(schema);
+            return reader.read(null, DecoderFactory.get().binaryDecoder(out.toByteArray(), null));
+        } catch (IOException ex) {
+            throw new AvroTranslationException("Could not translate Object to Record: " + ex.getMessage(), ex);
+        }
     }
 
-    public static <T> T toObject(GenericRecord record) throws IOException {
-        DatumWriter<GenericRecord> writer = new GenericDatumWriter<>(record.getSchema());
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        writer.write(record, EncoderFactory.get().directBinaryEncoder(out, null));
-        DatumReader<T> reader = new ReflectDatumReader<>(record.getSchema());
-        return reader.read(null, DecoderFactory.get().binaryDecoder(out.toByteArray(), null));
+    public static <T> T toObject(GenericRecord record) {
+        try {
+            DatumWriter<GenericRecord> writer = new GenericDatumWriter<>(record.getSchema());
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            writer.write(record, EncoderFactory.get().directBinaryEncoder(out, null));
+            DatumReader<T> reader = new ReflectDatumReader<>(record.getSchema());
+            return reader.read(null, DecoderFactory.get().binaryDecoder(out.toByteArray(), null));
+        } catch (IOException ex) {
+            throw new AvroTranslationException("Could not translate Record to Object: " + ex.getMessage(), ex);
+        }
     }
 }
