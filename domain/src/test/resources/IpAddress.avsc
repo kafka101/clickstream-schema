@@ -1,0 +1,4 @@
+ [
+   {"type":"fixed", "name":"IPv4", "size":4},
+   {"type":"fixed", "name":"IPv6", "size":16}
+ ]

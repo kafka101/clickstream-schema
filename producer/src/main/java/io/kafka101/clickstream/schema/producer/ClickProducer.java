@@ -5,7 +5,6 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.kafka101.clickstream.schema.domain.Click;
 import io.kafka101.clickstream.schema.domain.avro.AvroTranslator;
-import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -18,12 +17,10 @@ import java.util.concurrent.ExecutionException;
 public class ClickProducer {
 
     private final String topic;
-    private final Schema schema;
     private final KafkaProducer<String, GenericRecord> producer;
 
     public ClickProducer(String topic, String broker, String registryUrl) throws JsonMappingException {
         this.topic = topic;
-        this.schema = AvroTranslator.schemaFor(Click.class);
         this.producer = createProducer(broker, registryUrl);
     }
 
@@ -37,7 +34,7 @@ public class ClickProducer {
     }
 
     public RecordMetadata send(Click click) throws ExecutionException, InterruptedException {
-        GenericRecord genericRecord = AvroTranslator.toRecord(click, schema);
+        GenericRecord genericRecord = AvroTranslator.get().toAvro(click);
         ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topic, click.ip, genericRecord);
         return this.producer.send(record).get();
     }

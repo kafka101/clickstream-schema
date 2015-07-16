@@ -38,7 +38,7 @@ public class ConsumerThread implements Runnable {
         logger.debug("Received message with key '{}' and offset '{}' on partition '{}' for topic '{}'",
                 kafkaMessage.key(), kafkaMessage.offset(), kafkaMessage.partition(), kafkaMessage.topic());
         GenericData.Record record = (GenericData.Record) kafkaMessage.message();
-        Click click = AvroTranslator.toObject(record);
+        Click click = AvroTranslator.get().toObject(record, Click.class);
         consumer.consume(click);
     }
 }
