@@ -5,7 +5,7 @@ import io.kafka101.clickstream.schema.domain.avro.AvroTranslator;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.message.MessageAndMetadata;
-import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class ConsumerThread implements Runnable {
     private void relayMessage(MessageAndMetadata<String, Object> kafkaMessage) {
         logger.debug("Received message with key '{}' and offset '{}' on partition '{}' for topic '{}'",
                 kafkaMessage.key(), kafkaMessage.offset(), kafkaMessage.partition(), kafkaMessage.topic());
-        GenericData.Record record = (GenericData.Record) kafkaMessage.message();
+        GenericContainer record = (GenericContainer) kafkaMessage.message();
         Click click = translator.toObject(record, Click.class);
         consumer.consume(click);
     }
