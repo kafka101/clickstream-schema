@@ -13,7 +13,10 @@ import org.apache.avro.util.Utf8;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,7 +46,7 @@ public class SchemaSerializationTest {
     @Test
     public void record() throws IOException, IllegalAccessException {
         File file = File.createTempFile("avro-test", "out");
-        Schema schema = translator.schemaFor(Click.class, false);
+        Schema schema = translator.namespacelessSchemaFor(Click.class);
         Click click = new Click(nowAsISO(), "192.168.0.1", "index.html");
 
         DataFileWriter<GenericContainer> writer = createFileWriter(file, schema);
@@ -120,7 +123,8 @@ public class SchemaSerializationTest {
 
     @Test
     public void minimalisticSchema() throws IOException {
-        Schema schema = new Schema.Parser().parse(SchemaSerializationTest.class.getResourceAsStream("/SimpleString.avsc"));
+        Schema schema = new Schema.Parser().parse(
+                SchemaSerializationTest.class.getResourceAsStream("/SimpleString.avsc"));
 
         File file = File.createTempFile("avro-test", "out");
         DataFileWriter<String> dataFileWriter = createFileWriter(file, schema);

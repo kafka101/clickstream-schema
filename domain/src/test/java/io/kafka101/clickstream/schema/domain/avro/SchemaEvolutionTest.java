@@ -103,14 +103,14 @@ public class SchemaEvolutionTest {
         File file = File.createTempFile("avro-test", "out");
         DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>();
         DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
-        dataFileWriter.create(translator.schemaFor(value.getClass(), false), file);
+        dataFileWriter.create(translator.namespacelessSchemaFor(value.getClass()), file);
         dataFileWriter.append(translator.toAvro(value));
         dataFileWriter.close();
         return file;
     }
 
     private DataFileReader<GenericRecord> createReader(File file, Class<?> clazz) throws IOException {
-        Schema schema = translator.schemaFor(clazz, true);
+        Schema schema = translator.namespacedSchemaFor(clazz);
         DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(schema);
         return new DataFileReader(file, datumReader);
     }

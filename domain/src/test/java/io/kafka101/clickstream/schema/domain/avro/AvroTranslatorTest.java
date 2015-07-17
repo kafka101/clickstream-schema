@@ -66,14 +66,14 @@ public class AvroTranslatorTest {
 
     @Test
     public void namespacedSerialization() throws IOException {
-        Schema reflectiveSchema = translator.schemaFor(Click.class, true);
+        Schema reflectiveSchema = translator.namespacedSchemaFor(Click.class);
         Schema parsedSchema = new Schema.Parser().parse(namespacedSchema);
         assertThat(reflectiveSchema, is(equalTo(parsedSchema)));
     }
 
     @Test
     public void namespaceLessSerialization() throws IOException {
-        Schema reflectiveSchema = translator.schemaFor(Click.class, false);
+        Schema reflectiveSchema = translator.namespacelessSchemaFor(Click.class);
         Schema parsedSchema = new Schema.Parser().parse(namespaceLessSchema);
         assertThat(reflectiveSchema, is(equalTo(parsedSchema)));
     }

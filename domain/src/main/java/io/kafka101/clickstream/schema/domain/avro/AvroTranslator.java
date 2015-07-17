@@ -22,31 +22,26 @@ public final class AvroTranslator {
     private final Map<Class<?>, Schema> namespaceLessSchemaCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, Schema> namespacedSchemaCache = new ConcurrentHashMap<>();
 
-    public AvroTranslator() {
+    public <T, R extends GenericContainer> R toAvro(T object) {
+        Schema schema = namespacelessSchemaFor(object.getClass());
+        return toAvro(object, schema);
     }
 
-    public Schema schemaFor(Class<?> clazz, boolean namespace) {
-        if (namespace) {
-            return namespacedSchemaFor(clazz);
-        } else {
-            return namespacelessSchemaFor(clazz);
-        }
+    public <T extends GenericContainer, R> R toObject(T avro, Class<R> type) {
+        Schema schema = namespacedSchemaFor(type);
+        return toObject(avro, schema);
     }
 
-    private Schema namespacelessSchemaFor(Class<?> clazz) {
-        return namespaceLessSchemaCache.computeIfAbsent(clazz, c -> {
+    public Schema namespacelessSchemaFor(Class<?> type) {
+        return namespaceLessSchemaCache.computeIfAbsent(type, c -> {
             Schema schema = ReflectData.get().getSchema(c);
+            // kind of a hack to set an empty namespace :)
             return new Schema.Parser().parse(schema.toString().replace(schema.getNamespace(), ""));
         });
     }
 
-    private Schema namespacedSchemaFor(Class<?> clazz) {
-        return namespacedSchemaCache.computeIfAbsent(clazz, c -> ReflectData.get().getSchema(c));
-    }
-
-    public <T, R extends GenericContainer> R toAvro(T object) {
-        Schema schema = schemaFor(object.getClass(), false);
-        return toAvro(object, schema);
+    public Schema namespacedSchemaFor(Class<?> type) {
+        return namespacedSchemaCache.computeIfAbsent(type, c -> ReflectData.get().getSchema(c));
     }
 
     private <T, R extends GenericContainer> R toAvro(T object, Schema schema) {
@@ -60,11 +55,6 @@ public final class AvroTranslator {
             throw new AvroTranslationException("Could not translate Object to GenericContainer: " + ex.getMessage(),
                     ex);
         }
-    }
-
-    public <T extends GenericContainer, R> R toObject(T avro, Class<R> clazz) {
-        Schema schema = namespacedSchemaFor(clazz);
-        return toObject(avro, schema);
     }
 
     private <T extends GenericContainer, R> R toObject(T avro, Schema schema) {
