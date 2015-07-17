@@ -4,7 +4,7 @@ import io.kafka101.clickstream.schema.consumer.ClickConsumer;
 import io.kafka101.clickstream.schema.consumer.Consumer;
 import io.kafka101.clickstream.schema.consumer.MessageConsumer;
 import io.kafka101.clickstream.schema.domain.Click;
-import io.kafka101.clickstream.schema.producer.ClickProducer;
+import io.kafka101.clickstream.schema.producer.Producer;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class EndToEndTest extends EmbeddedKafkaTest {
         Consumer<Click> consumer = new Consumer(zkConnect, restConnect, "test-group", clickConsumer);
         consumer.run(THREADS);
 
-        ClickProducer producer = new ClickProducer(TOPIC, kafkaConnect, restConnect);
+        Producer producer = new Producer(TOPIC, kafkaConnect, restConnect);
         TimeZone tz = TimeZone.getTimeZone("UTC");
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         df.setTimeZone(tz);

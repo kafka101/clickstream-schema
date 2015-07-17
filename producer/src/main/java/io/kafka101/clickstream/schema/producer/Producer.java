@@ -14,13 +14,13 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class ClickProducer {
+public class Producer {
 
     private final String topic;
     private final KafkaProducer<String, GenericRecord> producer;
     private final AvroTranslator translator;
 
-    public ClickProducer(String topic, String broker, String registryUrl) throws JsonMappingException {
+    public Producer(String topic, String broker, String registryUrl) throws JsonMappingException {
         this.topic = topic;
         this.producer = createProducer(broker, registryUrl);
         this.translator = new AvroTranslator();
