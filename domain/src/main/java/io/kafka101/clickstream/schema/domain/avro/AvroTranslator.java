@@ -22,13 +22,7 @@ public final class AvroTranslator {
     private final Map<Class<?>, Schema> namespaceLessSchemaCache = new ConcurrentHashMap<>();
     private final Map<Class<?>, Schema> namespacedSchemaCache = new ConcurrentHashMap<>();
 
-    private static final AvroTranslator INSTANCE = new AvroTranslator();
-
-    private AvroTranslator() {
-    }
-
-    public static AvroTranslator get() {
-        return INSTANCE;
+    public AvroTranslator() {
     }
 
     public Schema schemaFor(Class<?> clazz, boolean namespace) {

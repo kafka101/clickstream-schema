@@ -16,11 +16,13 @@ public class ConsumerThread implements Runnable {
     private final KafkaStream messageStream;
     private final MessageConsumer consumer;
     private final String name;
+    private final AvroTranslator translator;
 
     public ConsumerThread(KafkaStream messageStream, String name, MessageConsumer consumer) {
         this.messageStream = messageStream;
         this.name = name;
         this.consumer = consumer;
+        this.translator = new AvroTranslator();
     }
 
     @Override
@@ -38,7 +40,7 @@ public class ConsumerThread implements Runnable {
         logger.debug("Received message with key '{}' and offset '{}' on partition '{}' for topic '{}'",
                 kafkaMessage.key(), kafkaMessage.offset(), kafkaMessage.partition(), kafkaMessage.topic());
         GenericData.Record record = (GenericData.Record) kafkaMessage.message();
-        Click click = AvroTranslator.get().toObject(record, Click.class);
+        Click click = translator.toObject(record, Click.class);
         consumer.consume(click);
     }
 }

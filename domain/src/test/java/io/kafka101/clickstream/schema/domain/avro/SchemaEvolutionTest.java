@@ -27,9 +27,12 @@ public class SchemaEvolutionTest {
     TimeZone tz = TimeZone.getTimeZone("UTC");
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
 
+    private AvroTranslator translator;
+
     @Before
     public void setUp() {
         df.setTimeZone(tz);
+        translator = new AvroTranslator();
     }
 
     private io.kafka101.clickstream.schema.domain.Click generateLegacyEntity() {
@@ -56,7 +59,7 @@ public class SchemaEvolutionTest {
         while (fileReader.hasNext()) {
             counter++;
             GenericRecord record = fileReader.next();
-            click = AvroTranslator.get().toObject(record, Click.class);
+            click = translator.toObject(record, Click.class);
         }
         fileReader.close();
 
@@ -83,7 +86,7 @@ public class SchemaEvolutionTest {
         while (fileReader.hasNext()) {
             counter++;
             GenericRecord record = fileReader.next();
-            legacyClick = AvroTranslator.get().toObject(record, io.kafka101.clickstream.schema.domain.Click.class);
+            legacyClick = translator.toObject(record, io.kafka101.clickstream.schema.domain.Click.class);
         }
         fileReader.close();
 
@@ -100,14 +103,14 @@ public class SchemaEvolutionTest {
         File file = File.createTempFile("avro-test", "out");
         DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>();
         DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
-        dataFileWriter.create(AvroTranslator.get().schemaFor(value.getClass(), false), file);
-        dataFileWriter.append(AvroTranslator.get().toAvro(value));
+        dataFileWriter.create(translator.schemaFor(value.getClass(), false), file);
+        dataFileWriter.append(translator.toAvro(value));
         dataFileWriter.close();
         return file;
     }
 
     private DataFileReader<GenericRecord> createReader(File file, Class<?> clazz) throws IOException {
-        Schema schema = AvroTranslator.get().schemaFor(clazz, true);
+        Schema schema = translator.schemaFor(clazz, true);
         DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(schema);
         return new DataFileReader(file, datumReader);
     }

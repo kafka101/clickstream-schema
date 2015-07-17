@@ -3,6 +3,7 @@ package io.kafka101.clickstream.schema.domain.avro;
 import io.kafka101.clickstream.schema.domain.Click;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -56,16 +57,23 @@ public class AvroTranslatorTest {
             + "  ]\n"
             + "}";
 
+    private AvroTranslator translator;
+
+    @Before
+    public void setUp() {
+        translator = new AvroTranslator();
+    }
+
     @Test
     public void namespacedSerialization() throws IOException {
-        Schema reflectiveSchema = AvroTranslator.get().schemaFor(Click.class, true);
+        Schema reflectiveSchema = translator.schemaFor(Click.class, true);
         Schema parsedSchema = new Schema.Parser().parse(namespacedSchema);
         assertThat(reflectiveSchema, is(equalTo(parsedSchema)));
     }
 
     @Test
     public void namespaceLessSerialization() throws IOException {
-        Schema reflectiveSchema = AvroTranslator.get().schemaFor(Click.class, false);
+        Schema reflectiveSchema = translator.schemaFor(Click.class, false);
         Schema parsedSchema = new Schema.Parser().parse(namespaceLessSchema);
         assertThat(reflectiveSchema, is(equalTo(parsedSchema)));
     }
@@ -78,8 +86,8 @@ public class AvroTranslatorTest {
         String nowAsISO = df.format(new Date());
         Click click = new Click(nowAsISO, "192.168.0.1", "index.html");
 
-        GenericRecord record = AvroTranslator.get().toAvro(click);
-        Click click2 = AvroTranslator.get().toObject(record, Click.class);
+        GenericRecord record = translator.toAvro(click);
+        Click click2 = translator.toObject(record, Click.class);
         assertThat(click.ip, is(equalTo(click2.ip)));
         assertThat(click.time, is(equalTo(click2.time)));
         assertThat(click.page, is(equalTo(click2.page)));

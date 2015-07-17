@@ -18,10 +18,12 @@ public class ClickProducer {
 
     private final String topic;
     private final KafkaProducer<String, GenericRecord> producer;
+    private final AvroTranslator translator;
 
     public ClickProducer(String topic, String broker, String registryUrl) throws JsonMappingException {
         this.topic = topic;
         this.producer = createProducer(broker, registryUrl);
+        this.translator = new AvroTranslator();
     }
 
     private KafkaProducer<String, GenericRecord> createProducer(String broker, String registryUrl) {
@@ -34,7 +36,7 @@ public class ClickProducer {
     }
 
     public RecordMetadata send(Click click) throws ExecutionException, InterruptedException {
-        GenericRecord genericRecord = AvroTranslator.get().toAvro(click);
+        GenericRecord genericRecord = translator.toAvro(click);
         ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topic, click.ip, genericRecord);
         return this.producer.send(record).get();
     }

@@ -32,20 +32,22 @@ public class SchemaSerializationTest {
 
     private TimeZone tz = TimeZone.getTimeZone("UTC");
     private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    private AvroTranslator translator;
 
     @Before
     public void setUp() {
         df.setTimeZone(tz);
+        translator = new AvroTranslator();
     }
 
     @Test
     public void record() throws IOException, IllegalAccessException {
         File file = File.createTempFile("avro-test", "out");
-        Schema schema = AvroTranslator.get().schemaFor(Click.class, false);
+        Schema schema = translator.schemaFor(Click.class, false);
         Click click = new Click(nowAsISO(), "192.168.0.1", "index.html");
 
         DataFileWriter<GenericContainer> writer = createFileWriter(file, schema);
-        writer.append(AvroTranslator.get().toAvro(click));
+        writer.append(translator.toAvro(click));
         writer.close();
 
         DataFileReader<GenericRecord> reader = createReader(file, schema);
@@ -78,9 +80,7 @@ public class SchemaSerializationTest {
 
     @Test
     public void union() throws IOException {
-        InputStream in = SchemaSerializationTest.class.getResourceAsStream("/IpAddress.avsc");
-        assertNotNull(in);
-        Schema schema = new Schema.Parser().parse(in);
+        Schema schema = new Schema.Parser().parse(SchemaSerializationTest.class.getResourceAsStream("/IpAddress.avsc"));
 
         InetAddress ipv6 = InetAddress.getByName("3ffe:1900:4545:3:200:f8ff:fe21:67cf");
         GenericData.Fixed fixedIpv6 = new GenericData.Fixed(SchemaBuilder.fixed("IPv6").size(16), ipv6.getAddress());
