@@ -8,7 +8,7 @@ dependencies {
             ["io.confluent:kafka-schema-registry:$confluentVersion"],
             ["io.confluent:kafka-schema-registry:$confluentVersion:tests"]
     )
-    testCompile("org.apache.kafka:kafka_2.10:$kafkaVersion:test") {
+    testCompile("org.apache.kafka:kafka_2.11:$kafkaVersion:test") {
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
 }
